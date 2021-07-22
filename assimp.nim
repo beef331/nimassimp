@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import unsigned
 when defined(windows):
   const LibName = "Assimp(|32|64).dll"
 elif defined(macosx):
@@ -40,8 +39,6 @@ const
   AI_MATKEY_SHININESS* = "$mat.shininess"
 
 type
-  UncheckedArray* {.unchecked.} [T] = array[1,T]
-
   PNode* = ptr TNode
   TNode* {.pure.} = object
     name*: AIstring
@@ -197,7 +194,7 @@ type
     indices*: ptr UncheckedArray[cint]
 
   AIstring* = object
-    length*: csize
+    length*: csize_t
     data*: array[0..MAXLEN_AISTRING-1, char]
 
   AIreturn* {.size: sizeof(cint).} = enum
@@ -216,7 +213,7 @@ type
     TexOpacity = 8, TexDisplacement = 9, TexLightmap = 10,
     TexReflection = 11, TexUnknown = 12
 
-  TTexel* = tuple[b, g, r, a: cuchar]
+  TTexel* = tuple[b, g, r, a: byte]
   TColor3d* = tuple[r, g, b: cfloat]
   TColor4d* = tuple[r, g, b, a: cfloat]
   TVector3d* = tuple[x, y, z: cfloat]
@@ -227,86 +224,114 @@ type
     a*, b*, c*, d*: cfloat
 
   TPrimitiveType* {.size: sizeof(cint).} = enum
-    aiPrimitiveType_POINT    = 0x1,
-    aiPrimitiveType_LINE     = 0x2,
+    aiPrimitiveType_POINT = 0x1,
+    aiPrimitiveType_LINE = 0x2,
     aiPrimitiveType_TRIANGLE = 0x4,
-    aiPrimitiveType_POLYGON  = 0x8
+    aiPrimitiveType_POLYGON = 0x8
+
+type ImportProcess* = enum
+  calcTangentSpace
+  joinIdenticalVerts
+  makeLeftHanded
+  triangulate
+  removeComponent
+  genNormals
+  genSmoothNormals
+  splitLargeMeshes
+  preTransformVerts
+  limitBoneWeights
+  validateDataStructure
+  improveCacheLocality
+  removeRedundantMaterials
+  fixInfacingNormals
+  sortByPType
+  findDegenerates
+  findInvalidData
+  genUvCoords
+  transformUvCoords
+  findInstances
+  optimizeMesh
+  omptimizeGraph
+  flipUvs
+  flipWindingOrder
 
 const
-  aiProcess_CalcTangentSpace*: cint = 0x00000001
-  aiProcess_JoinIdenticalVertices*: cint = 0x00000002
-  aiProcess_MakeLeftHanded*: cint = 0x00000004
-  aiProcess_Triangulate*: cint = 0x00000008
-  aiProcess_RemoveComponent*: cint = 0x00000010
-  aiProcess_GenNormals*: cint = 0x00000020
-  aiProcess_GenSmoothNormals*: cint = 0x00000040
-  aiProcess_SplitLargeMeshes*: cint = 0x00000080
-  aiProcess_PreTransformVertices*: cint = 0x00000100
-  aiProcess_LimitBoneWeights*: cint = 0x00000200
-  aiProcess_ValidateDataStructure*: cint = 0x00000400
-  aiProcess_ImproveCacheLocality*: cint = 0x00000800
-  aiProcess_RemoveRedundantMaterials*: cint = 0x00001000
-  aiProcess_FixInfacingNormals*: cint = 0x00002000
-  aiProcess_SortByPType*: cint = 0x00008000
-  aiProcess_FindDegenerates*: cint = 0x00010000
-  aiProcess_FindInvalidData*: cint = 0x00020000
-  aiProcess_GenUVCoords*: cint = 0x00040000
-  aiProcess_TransformUVCoords*: cint = 0x00080000
-  aiProcess_FindInstances*: cint = 0x00100000
-  aiProcess_OptimizeMeshes*: cint = 0x00200000
-  aiProcess_OptimizeGraph*: cint = 0x00400000
-  aiProcess_FlipUVs*: cint = 0x00800000
-  aiProcess_FlipWindingOrder*: cint = 0x01000000
-
-  aiProcess_ConvertToLeftHanded*: cint = (aiProcess_MakeLeftHanded or
-      aiProcess_FlipUVs or aiProcess_FlipWindingOrder or 0)
-  aiProcessPreset_TargetRealtime_Fast*: cint = (aiProcess_CalcTangentSpace or
-      aiProcess_GenNormals or aiProcess_JoinIdenticalVertices or
-      aiProcess_Triangulate or aiProcess_GenUVCoords or
-      aiProcess_SortByPType)
-  aiProcessPreset_TargetRealtime_Quality*: cint = (aiProcess_CalcTangentSpace or
-      aiProcess_GenSmoothNormals or aiProcess_JoinIdenticalVertices or
-      aiProcess_ImproveCacheLocality or aiProcess_LimitBoneWeights or
-      aiProcess_RemoveRedundantMaterials or aiProcess_SplitLargeMeshes or
-      aiProcess_Triangulate or aiProcess_GenUVCoords or
-      aiProcess_SortByPType or aiProcess_FindDegenerates or
-      aiProcess_FindInvalidData )
-  aiProcessPreset_TargetRealtime_MaxQuality* = (aiProcessPreset_TargetRealtime_Quality or
-      aiProcess_FindInstances or aiProcess_ValidateDataStructure or
-      aiProcess_OptimizeMeshes)
+  ProcessLut = [
+    calcTangentSpace: 0x00000001.cint,
+    joinIdenticalVerts: 0x00000002.cint,
+    makeLeftHanded: 0x00000004.cint,
+    triangulate: 0x00000008.cint,
+    removeComponent: 0x00000010.cint,
+    genNormals: 0x00000020.cint,
+    genSmoothNormals: 0x00000040.cint,
+    splitLargeMeshes: 0x00000080.cint,
+    preTransformVerts: 0x00000100.cint,
+    limitBoneWeights: 0x00000200.cint,
+    validateDataStructure: 0x00000400.cint,
+    improveCacheLocality: 0x00000800.cint,
+    removeRedundantMaterials: 0x00001000.cint,
+    fixInfacingNormals: 0x00002000.cint,
+    sortByPType: 0x00008000.cint,
+    findDegenerates: 0x00010000.cint,
+    findInvalidData: 0x00020000.cint,
+    genUvCoords: 0x00040000.cint,
+    transformUvCoords: 0x00080000.cint,
+    findInstances: 0x00100000.cint,
+    optimizeMesh: 0x00200000.cint,
+    omptimizeGraph: 0x00400000.cint,
+    flipUvs: 0x00800000.cint,
+    flipWindingOrder: 0x01000000.cint,
+  ]
+  ConvertToLeftHanded* = {makeLeftHanded, flipUvs, flipWindingOrder}
+  TargetRealtimeFast* = {calcTangentSpace, genNormals, joinIdenticalVerts, triangulate, genUvCoords, sortByPType}
+  TargetRealtimeQuality* = {calcTangentSpace, genSmoothNormals, joinIdenticalVerts,
+      improveCacheLocality, limitBoneWeights, removeRedundantMaterials, splitLargeMeshes,
+      triangulate, genUvCoords, sortByPType, findDegenerates, findInvalidData}
+  TargetRealtimeMaxQuality* = TargetRealtimeQuality + {findInstances, validateDataStructure, optimizeMesh}
 
 {.push callconv: cdecl.}
 
-proc aiImportFile*(filename: cstring; flags: cint): PScene {.importc, dynlib:LibName.}
+proc aiImportFile*(filename: cstring; flags: cint): PScene {.importc, dynlib: LibName.}
+
+proc aiImportFile*(filename: cstring; flags: set[ImportProcess]): PScene =
+  let newFlags = block:
+    var res: cint
+    for x in flags:
+      res = res or ProcessLut[x]
+    res
+  aiImportFile(filename, newFlags)
+
 proc aiImportFileFromMemory*(pBuffer: cstring;
                             pLength, pFlags: uint32;
-                            pHint: cstring): PScene {.importc, dynlib:LibName.}
-proc aiEnableVerboseLogging*(d: bool) {.importc,dynlib:LibName.}
-proc aiReleaseImport*(pScene: PScene) {.importc,dynlib:LibName.}
-proc getError*(): cstring {.importc: "aiGetErrorString", dynlib:LibName.}
+                            pHint: cstring): PScene {.importc, dynlib: LibName.}
+proc aiEnableVerboseLogging*(d: bool) {.importc, dynlib: LibName.}
+proc aiReleaseImport*(pScene: PScene) {.importc, dynlib: LibName.}
+proc getError*(): cstring {.importc: "aiGetErrorString", dynlib: LibName.}
 
 
 
 proc getTexture*(material: PMaterial; kind: TTextureType; index: cint;
-  path: ptr AIstring; mapping: ptr TTextureMapping = nil, uvIndex: ptr cint = nil;
+  path: ptr AIstring; mapping: ptr TTextureMapping = nil; uvIndex: ptr cint = nil;
   blend: ptr cfloat = nil; op: ptr TTextureOp = nil;
   mapMode: ptr TTextureMapMode = nil; flags: ptr cint = nil): AIreturn {.
-  importc: "aiGetMaterialTexture", dynlib:LibName.}
+  importc: "aiGetMaterialTexture", dynlib: LibName.}
 
-proc getMaterialColor*(material: PMaterial, name: cstring, `type`, index: cuint, color: ptr TColor3d): AIreturn {.
-  importc: "aiGetMaterialColor", dynlib:LibName.}
+proc getMaterialColor*(material: PMaterial; name: cstring; `type`, index: cuint;
+    color: ptr TColor3d): AIreturn {.
+  importc: "aiGetMaterialColor", dynlib: LibName.}
 
 proc getTextureCount*(material: PMaterial; kind: TTextureType): uint32 {.
-  importc: "aiGetMaterialTextureCount", dynlib:LibName.}
+  importc: "aiGetMaterialTextureCount", dynlib: LibName.}
 
-proc getMaterialFloatArray*(material: PMaterial, key: cstring, `type`, index: cuint = 0.cuint, `out`: ptr cfloat, max: ptr cuint = nil): AIreturn {.
-  importc: "aiGetMaterialFloatArray", dynlib:LibName.}
+proc getMaterialFloatArray*(material: PMaterial; key: cstring; `type`, index: cuint = 0.cuint;
+    `out`: ptr cfloat; max: ptr cuint = nil): AIreturn {.
+  importc: "aiGetMaterialFloatArray", dynlib: LibName.}
 
 
 
 
-proc transpose*(some: ptr TMatrix4x4) {.importc: "aiTransposeMatrix4", dynlib:LibName.}
-proc transpose*(some: ptr TMatrix3x3) {.importc: "aiTransposeMatrix3", dynlib:LibName.}
+proc transpose*(some: ptr TMatrix4x4) {.importc: "aiTransposeMatrix4", dynlib: LibName.}
+proc transpose*(some: ptr TMatrix3x3) {.importc: "aiTransposeMatrix3", dynlib: LibName.}
 
 {.pop.}
 
