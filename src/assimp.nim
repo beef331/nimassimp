@@ -292,8 +292,8 @@ const
 {.push callconv: cdecl.}
 
 
-iterator meshes*(scene: PScene): PMesh =
-  for x in 0..scene.meshCount:
+iterator imeshes*(scene: PScene): PMesh =
+  for x in 0..<scene.meshCount:
     yield scene.meshes[x]
 
 proc aiImportFile*(filename: cstring; flags: cint): PScene {.importc, dynlib: LibName.}
