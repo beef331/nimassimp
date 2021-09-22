@@ -296,6 +296,14 @@ iterator imeshes*(scene: PScene): PMesh =
   for x in 0..<scene.meshCount:
     yield scene.meshes[x]
 
+iterator ifaces*(mesh: PMesh): TFace =
+  for x in 0..<mesh.faceCount:
+    yield mesh.faces[x]
+
+iterator iindices*(face: TFace): cint =
+  for x in 0..<face.indexCount:
+    yield face.indices[x]
+
 proc aiImportFile*(filename: cstring; flags: cint): PScene {.importc, dynlib: LibName.}
 
 proc aiImportFile*(filename: cstring; flags: set[ImportProcess]): PScene =
