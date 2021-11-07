@@ -354,6 +354,8 @@ proc hasFaces*(some: PMesh): bool {.inline.} = (some.faceCount > 0 and
   not some.faces.isNil)
 proc hasNormals*(some: PMesh): bool {.inline.} = (some.vertexCount > 0 and
   not some.normals.isNil)
+proc hasUvs*(some: PMesh): bool {.inline.} = some.numUVcomponents[0] > 0
+proc hasColors*(some: PMesh): bool {.inline.} = some.colors[0] != nil
 
 
 
