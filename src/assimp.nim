@@ -194,7 +194,7 @@ type
     indices*: ptr UncheckedArray[cint]
 
   AIstring* = object
-    length*: csize_t
+    length*: cuint
     data*: array[0..MAXLEN_AISTRING-1, char]
 
   AIreturn* {.size: sizeof(cint).} = enum
