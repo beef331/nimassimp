@@ -58,8 +58,8 @@ type
     normals*: ptr UncheckedArray[TVector3d]
     tangents*: ptr UncheckedArray[TVector3d]
     bitTangents*: ptr UncheckedArray[TVector3d]
-    colors*: array[0..AI_MAX_NUMBER_OF_COLOR_SETS-1, ptr TColor4d]
-    texCoords*: array[0..AI_MAX_NUMBER_OF_TEXTURECOORDS-1, ptr TVector3d]
+    colors*: array[0..AI_MAX_NUMBER_OF_COLOR_SETS-1, ptr UncheckedArray[TColor4d]]
+    texCoords*: array[0..AI_MAX_NUMBER_OF_TEXTURECOORDS-1, ptr UncheckedArray[TVector3d]]
     numUVcomponents*: array[0..AI_MAX_NUMBER_OF_TEXTURECOORDS-1, cint]
     faces*: ptr UncheckedArray[TFace]
     boneCount*: cint
