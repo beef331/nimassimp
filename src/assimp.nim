@@ -296,6 +296,11 @@ iterator imeshes*(scene: PScene): PMesh =
   for x in 0..<scene.meshCount:
     yield scene.meshes[x]
 
+iterator imeshes*(node: PNode, scene: PScene): PMesh =
+  if node != nil and node.meshCount > 0:
+    for x in cint(0)..<node.meshCount:
+      yield scene.meshes[node.meshes[x]]
+
 iterator ifaces*(mesh: PMesh): TFace =
   for x in 0..<mesh.faceCount:
     yield mesh.faces[x]
@@ -303,6 +308,15 @@ iterator ifaces*(mesh: PMesh): TFace =
 iterator iindices*(face: TFace): cint =
   for x in 0..<face.indexCount:
     yield face.indices[x]
+
+iterator ichildren*(node: PNode): PNode =
+  if node != nil:
+    var queue = @[node]
+    while queue.len > 0:
+      let node = queue.pop
+      for i in 0..<node.childrenCount:
+        yield node.children[i]
+        queue.add node.children[i]
 
 proc aiImportFile*(filename: cstring; flags: cint): PScene {.importc, dynlib: LibName.}
 
