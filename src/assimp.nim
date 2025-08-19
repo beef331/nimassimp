@@ -66,8 +66,8 @@ type
     bones*: ptr UncheckedArray[PBone]
     materialIndex*: cint
     name*: AIstring
-    anmMeshCount*: cint
-    animMeshes*: pointer ## ptr ptr TAnimMesh
+    animMeshCount*: cint
+    animMeshes*: pointer ## ptr ptr TMeshAnim
 
   PScene* = ptr TScene
   TScene* {.pure.} = object
@@ -251,7 +251,7 @@ type ImportProcess* = enum
   transformUvCoords
   findInstances
   optimizeMesh
-  omptimizeGraph
+  optimizeGraph
   flipUvs
   flipWindingOrder
 
