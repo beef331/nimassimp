@@ -251,7 +251,7 @@ type ImportProcess* = enum
   transformUvCoords
   findInstances
   optimizeMesh
-  omptimizeGraph
+  optimizeGraph
   flipUvs
   flipWindingOrder
 
