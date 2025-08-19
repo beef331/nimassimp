@@ -67,7 +67,7 @@ type
     materialIndex*: cint
     name*: AIstring
     anmMeshCount*: cint
-    animMeshes*: pointer ## ptr ptr TAnimMesh
+    animMeshes*: pointer ## ptr ptr TMeshAnim
 
   PScene* = ptr TScene
   TScene* {.pure.} = object
