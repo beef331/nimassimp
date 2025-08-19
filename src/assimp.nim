@@ -66,7 +66,7 @@ type
     bones*: ptr UncheckedArray[PBone]
     materialIndex*: cint
     name*: AIstring
-    anmMeshCount*: cint
+    animMeshCount*: cint
     animMeshes*: pointer ## ptr ptr TMeshAnim
 
   PScene* = ptr TScene
